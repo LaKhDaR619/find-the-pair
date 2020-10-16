@@ -14,3 +14,8 @@ a {
 * {
   box-sizing: border-box;
 }
+
+@font-face {
+  font-family: "nunito";
+  src: local("nunito"), url(../fonts/nunito.ttf) format("woff");
+}
