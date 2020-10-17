@@ -18,7 +18,7 @@ const Header = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
+  height: 65px;
   backgroud: #f2f2f2;
 `;
 
@@ -26,8 +26,8 @@ const Title = styled.h1`
   font-family: Nunito;
   font-style: normal;
   font-weight: bold;
-  font-size: 40px;
-  line-height: 55px;
+  font-size: 38px;
+  line-height: 50px;
 `;
 
 export default function App() {

@@ -1,13 +1,22 @@
+import { useState, useEffect } from "react";
 import { Col, Row } from "antd";
-import { connect } from "react-redux";
-import styled from "styled-components";
+
+import { connect, useSelector } from "react-redux";
 import { cardsSelector, rowCountSelector } from "../state/reducers/rootReducer";
 
+import styled from "styled-components";
+
+import ReactCardFlip from "react-card-flip";
+
 const Contaienr = styled.div`
-  min-width: 1100px;
+  width: 1100px;
   margin-right: 64px;
-  //background: red;
 `;
+
+const containerStyles = {
+  width: "100%",
+  height: "100%",
+};
 
 const Card = styled.div`
   background: #1890ff;
@@ -17,6 +26,7 @@ const Card = styled.div`
   justify-content: center;
   align-items: center;
   border-radius: 4px;
+  cursor: pointer;
 `;
 
 const QuestionMark = styled.p`
@@ -27,22 +37,78 @@ const QuestionMark = styled.p`
   color: #ffffff;
 `;
 
-function Main({ cards, rowCount }) {
+const Image = styled.img`
+  width: 100%;
+  height: 100%;
+`;
+
+function Main() {
+  const cards = useSelector(cardsSelector);
+  const rowCount = useSelector(rowCountSelector);
+
+  const [isFlipped, setIsFlipped] = useState([]);
+  const [pauseFlip, setPauseFlip] = useState(false);
+
+  useEffect(() => {
+    //FirstStage();
+  }, []);
+
+  const handleRestart = () => {
+    FirstStage();
+    setTimeout();
+  };
+
+  const FirstStage = () => {
+    // showing all images
+    const temp = [];
+    cards.forEach((card, index) => {
+      temp[index] = true;
+      setIsFlipped(temp);
+    });
+
+    // waiting 5 seconds and hiding the images
+    setTimeout(() => {
+      const temp2 = [];
+      cards.forEach((card, index) => {
+        console.log(index);
+        temp2[index] = false;
+        setIsFlipped(temp2);
+      });
+    }, 5000);
+  };
+
+  const handleFlip = (index) => {
+    if (pauseFlip) return;
+
+    const temp = [...isFlipped];
+    temp[index] = !temp[index];
+    setIsFlipped(temp);
+  };
+
   return (
     <Contaienr>
       <Row gutter={[16, 16]}>
-        {cards.map((card) => (
+        {cards.map((card, index) => (
           <Col
             key={card}
             className="gutter-row"
             style={{
-              width: `calc(100% / ${rowCount || "5"})`,
+              width: `calc(100% / ${rowCount})`,
               height: "150px",
             }}
           >
-            <Card>
-              <QuestionMark>?</QuestionMark>
-            </Card>
+            <ReactCardFlip
+              isFlipped={isFlipped[index]}
+              containerStyle={containerStyles}
+            >
+              <Card onClick={() => handleFlip(index)}>
+                <QuestionMark>?</QuestionMark>
+              </Card>
+
+              <Card onClick={() => handleFlip(index)}>
+                <Image src="./images/1.jpg" alt="image" />
+              </Card>
+            </ReactCardFlip>
           </Col>
         ))}
       </Row>
@@ -50,11 +116,4 @@ function Main({ cards, rowCount }) {
   );
 }
 
-const mapStateToProps = (state) => {
-  return {
-    cards: cardsSelector(state),
-    rowCount: rowCountSelector(state),
-  };
-};
-
-export default connect(mapStateToProps, null)(Main);
+export default connect(null, null)(Main);

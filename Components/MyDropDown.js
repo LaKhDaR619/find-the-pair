@@ -1,23 +1,17 @@
 import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import { connect } from "react-redux";
-import { rowCountSelector } from "../state/reducers/rootReducer";
+import { connect, useSelector } from "react-redux";
+import {
+  rowCountSelector,
+  selectedLabelSelector,
+} from "../state/reducers/rootReducer";
 
-function MyDropDown(props) {
-  console.log(props);
-
-  let selectedLabel = "";
-  let setSelectedSize = () => {};
-
-  if (props) {
-    selectedLabel = props.selectedLabel;
-    setSelectedSize = props.setSelectedSize;
-  }
+function MyDropDown({ setSelectedSize }) {
+  const selectedLabel = useSelector(selectedLabelSelector);
 
   const handleMenuClick = (e) => {
     const { label, value } = e.item.props;
-
-    setSelectedSize({ label, value });
+    setSelectedSize({ label, value, rowCount: value / 3 });
   };
 
   const menu = (
@@ -47,7 +41,7 @@ function MyDropDown(props) {
   );
 
   return (
-    <Dropdown overlay={MyDropDown}>
+    <Dropdown overlay={menu}>
       <Button style={{ width: "200px" }}>
         {selectedLabel} <DownOutlined />
       </Button>
@@ -68,8 +62,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     setSelectedSize: (size) =>
-      dispatch({ action: "SET_SELECTED_SIZE", payload: size }),
+      dispatch({ type: "SET_SELECTED_SIZE", payload: size }),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MyDropDown);
+export default connect(null, mapDispatchToProps)(MyDropDown);
