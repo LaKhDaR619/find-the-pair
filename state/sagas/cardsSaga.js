@@ -53,7 +53,7 @@ export function* firstStage({ payload }) {
   yield put({ type: "SET_IS_FLIPPED", payload: { isFlipped: temp } });
 
   // waiting 5 seconds, then hiding the images
-  yield delay(1000);
+  yield delay(5000);
 
   for (let i = 0; i < size * 2; i++) temp[i] = false;
   yield put({ type: "SET_IS_FLIPPED", payload: { isFlipped: temp } });
