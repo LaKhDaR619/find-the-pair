@@ -9,6 +9,7 @@ const initialState = {
   pair: [],
   foundCards: [],
   score: 0,
+  tries: 10,
   cardsLoading: true,
 };
 
@@ -38,6 +39,8 @@ const cardsReducer = (state = initialState, action) => {
       return { ...state, ...action.payload };
     case "SET_SCORE":
       return { ...state, ...action.payload };
+    case "SET_TRIES":
+      return { ...state, ...action.payload };
     default:
       return state;
   }
@@ -52,6 +55,7 @@ export const pauseFlipSelector = (state) => state.pauseFlip;
 export const pairSelector = (state) => state.pair;
 export const foundCardsSelector = (state) => state.foundCards;
 export const scoreSelector = (state) => state.score;
+export const triesSelector = (state) => state.tries;
 
 // reselcter
 export const rowCountSelector = createSelector(selectedSizeSelector, (size) => {

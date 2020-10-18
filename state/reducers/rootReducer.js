@@ -20,5 +20,6 @@ export const pairSelector = (state) => fromCards.pairSelector(state.cards);
 export const foundCardsSelector = (state) =>
   fromCards.foundCardsSelector(state.cards);
 export const scoreSelector = (state) => fromCards.scoreSelector(state.cards);
+export const triesSelector = (state) => fromCards.triesSelector(state.cards);
 
 export default rootReducer;

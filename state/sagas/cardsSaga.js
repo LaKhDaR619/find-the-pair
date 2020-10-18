@@ -42,6 +42,7 @@ export function* firstStage({ payload }) {
   yield put({ type: "SET_PAIR", payload: { pair: [] } });
   yield put({ type: "SET_FOUND_CARDS", payload: { foundCards: [] } });
   yield put({ type: "SET_SCORE", payload: { score: 0 } });
+  yield put({ type: "SET_TRIES", payload: { tries: 10 } });
 
   const { size } = payload;
 

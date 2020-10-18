@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {
   selectedSizeSelector,
   scoreSelector,
+  triesSelector,
 } from "../state/reducers/rootReducer";
 import MyDropDown from "./MyDropDown";
 
@@ -27,10 +28,16 @@ const SubScore = styled.span`
   font-size: 35px;
   font-weight: 700;
 `;
-const Tries = styled.h3`
+const SubTries = styled.h3`
   font-size: 16px;
   font-weight: 400;
   margin-top: 20px;
+`;
+const Tries = styled.span`
+  font-size: 16px;
+  font-weight: 400;
+  margin-top: 20px;
+  color: ${(props) => (props.tries <= 3 ? "red" : "black")};
 `;
 const Options = styled.h1`
   font-family: Nunito;
@@ -42,6 +49,7 @@ const Size = styled.span`
 
 function ScoreSection({ getCards }) {
   const score = useSelector(scoreSelector);
+  const tries = useSelector(triesSelector);
   const size = useSelector(selectedSizeSelector);
 
   const handleRestart = () => {
@@ -54,7 +62,9 @@ function ScoreSection({ getCards }) {
       <SubScore>
         <Score>{score}</Score> / {size}
       </SubScore>
-      <Tries>Tries: 5</Tries>
+      <SubTries>
+        Tries: <Tries tries={tries}>{tries}</Tries>
+      </SubTries>
       <Divider />
       <Options>Options</Options>
       <Size>size</Size>

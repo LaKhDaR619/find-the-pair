@@ -11,6 +11,7 @@ import {
   pairSelector,
   foundCardsSelector,
   scoreSelector,
+  triesSelector,
 } from "../state/reducers/rootReducer";
 
 import styled from "styled-components";
@@ -66,6 +67,7 @@ function Main({
   setFoundCards,
   setScore,
   getCards,
+  setTries,
 }) {
   const size = useSelector(selectedSizeSelector);
   const cards = useSelector(cardsSelector);
@@ -75,6 +77,7 @@ function Main({
   const pair = useSelector(pairSelector);
   const foundCards = useSelector(foundCardsSelector);
   const score = useSelector(scoreSelector);
+  const tries = useSelector(triesSelector);
 
   const handleFlip = (index) => {
     if (pauseFlip) return;
@@ -111,6 +114,7 @@ function Main({
         temp[index] = false;
 
         setTimeout(() => {
+          setTries(tries - 1);
           setIsFlipped(temp);
           setPauseFlip(false);
         }, 1000);
@@ -130,14 +134,27 @@ function Main({
     display: "none",
   };
 
-  console.log(cards);
+  let resultBoard;
+
+  if (score == size)
+    resultBoard = (
+      <WinScreen>
+        <WinText>Congrates You Won !!</WinText>
+        <Button onClick={() => getCards(size)}>Play Again ?</Button>
+      </WinScreen>
+    );
+  else if (tries == 0)
+    resultBoard = (
+      <WinScreen>
+        <WinText>You Lost !!</WinText>
+        <Button onClick={() => getCards(size)}>Play Again ?</Button>
+      </WinScreen>
+    );
+
   return (
     <Contaienr>
-      {score == size ? (
-        <WinScreen>
-          <WinText>Congrates You Won !!</WinText>
-          <Button onClick={() => getCards(size)}>Play Again ?</Button>
-        </WinScreen>
+      {resultBoard ? (
+        resultBoard
       ) : (
         <Row gutter={[16, 16]}>
           {cards.map((card, index) => (
@@ -180,6 +197,7 @@ const mapDispatchToProps = (dispatch) => {
     setFoundCards: (foundCards) =>
       dispatch({ type: "SET_FOUND_CARDS", payload: { foundCards } }),
     setScore: (score) => dispatch({ type: "SET_SCORE", payload: { score } }),
+    setTries: (tries) => dispatch({ type: "SET_TRIES", payload: { tries } }),
   };
 };
 
