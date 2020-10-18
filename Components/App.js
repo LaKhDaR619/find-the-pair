@@ -1,9 +1,17 @@
 import "antd/dist/antd.css";
 
+import { useEffect } from "react";
+import { connect, useSelector } from "react-redux";
+
 import styled from "styled-components";
 
 import Main from "./Main";
 import ScoreSection from "./ScoreSection";
+
+import {
+  cardsLoadingSelector,
+  selectedSizeSelector,
+} from "../state/reducers/rootReducer";
 
 const Contaienr = styled.div`
   width: 80vw;
@@ -30,7 +38,17 @@ const Title = styled.h1`
   line-height: 50px;
 `;
 
-export default function App() {
+function App({ getCards }) {
+  useEffect(() => {
+    getCards(size);
+  }, []);
+
+  const size = useSelector(selectedSizeSelector);
+  const cardsLoading = useSelector(cardsLoadingSelector);
+
+  // if i want to display a loading screen
+  //if (cardsLoading) return <p>Loading</p>;
+
   return (
     <Contaienr>
       <Header>
@@ -43,3 +61,11 @@ export default function App() {
     </Contaienr>
   );
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getCards: (size) => dispatch({ type: "GET_CARDS", payload: { size } }),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(App);

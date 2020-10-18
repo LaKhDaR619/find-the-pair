@@ -1,17 +1,15 @@
 import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { connect, useSelector } from "react-redux";
-import {
-  rowCountSelector,
-  selectedLabelSelector,
-} from "../state/reducers/rootReducer";
+import { selectedLabelSelector } from "../state/reducers/rootReducer";
 
 function MyDropDown({ setSelectedSize }) {
   const selectedLabel = useSelector(selectedLabelSelector);
 
   const handleMenuClick = (e) => {
     const { label, value } = e.item.props;
-    setSelectedSize({ label, value, rowCount: value / 3 });
+
+    if (selectedLabel != label) setSelectedSize({ label, value });
   };
 
   const menu = (
@@ -49,20 +47,10 @@ function MyDropDown({ setSelectedSize }) {
   );
 }
 
-const mapStateToProps = (state) => {
-  console.log(state);
-
-  return {
-    selectedSize: state.data.selectedSize,
-    selectedLabel: state.data.selectedLabel,
-    rowCount: rowCountSelector(state),
-  };
-};
-
 const mapDispatchToProps = (dispatch) => {
   return {
     setSelectedSize: (size) =>
-      dispatch({ type: "SET_SELECTED_SIZE", payload: size }),
+      dispatch({ type: "CHANGE_SIZE", payload: { size } }),
   };
 };
 

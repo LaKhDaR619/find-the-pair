@@ -1,22 +1,28 @@
-import { useState, useEffect } from "react";
-import { Col, Row } from "antd";
+import { useEffect } from "react";
+import { Button, Col, Row } from "antd";
 
 import { connect, useSelector } from "react-redux";
-import { cardsSelector, rowCountSelector } from "../state/reducers/rootReducer";
+import {
+  cardsSelector,
+  rowCountSelector,
+  isFlippedSelector,
+  pauseFlipSelector,
+  selectedSizeSelector,
+  pairSelector,
+  foundCardsSelector,
+  scoreSelector,
+} from "../state/reducers/rootReducer";
 
 import styled from "styled-components";
 
 import ReactCardFlip from "react-card-flip";
+import { getCards } from "../state/sagas/cardsSaga";
 
 const Contaienr = styled.div`
-  width: 1100px;
+  min-width: 1100px;
+  max-width: 1100px;
   margin-right: 64px;
 `;
-
-const containerStyles = {
-  width: "100%",
-  height: "100%",
-};
 
 const Card = styled.div`
   background: #1890ff;
@@ -42,78 +48,138 @@ const Image = styled.img`
   height: 100%;
 `;
 
-function Main() {
+const WinScreen = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const WinText = styled.h1``;
+
+function Main({
+  setIsFlipped,
+  setPauseFlip,
+  setPair,
+  setFoundCards,
+  setScore,
+  getCards,
+}) {
+  const size = useSelector(selectedSizeSelector);
   const cards = useSelector(cardsSelector);
   const rowCount = useSelector(rowCountSelector);
-
-  const [isFlipped, setIsFlipped] = useState([]);
-  const [pauseFlip, setPauseFlip] = useState(false);
-
-  useEffect(() => {
-    //FirstStage();
-  }, []);
-
-  const handleRestart = () => {
-    FirstStage();
-    setTimeout();
-  };
-
-  const FirstStage = () => {
-    // showing all images
-    const temp = [];
-    cards.forEach((card, index) => {
-      temp[index] = true;
-      setIsFlipped(temp);
-    });
-
-    // waiting 5 seconds and hiding the images
-    setTimeout(() => {
-      const temp2 = [];
-      cards.forEach((card, index) => {
-        console.log(index);
-        temp2[index] = false;
-        setIsFlipped(temp2);
-      });
-    }, 5000);
-  };
+  const isFlipped = useSelector(isFlippedSelector);
+  const pauseFlip = useSelector(pauseFlipSelector);
+  const pair = useSelector(pairSelector);
+  const foundCards = useSelector(foundCardsSelector);
+  const score = useSelector(scoreSelector);
 
   const handleFlip = (index) => {
     if (pauseFlip) return;
 
-    const temp = [...isFlipped];
-    temp[index] = !temp[index];
-    setIsFlipped(temp);
+    // flipping the card if it is not flipped
+    if (!isFlipped[index]) {
+      const temp = [...isFlipped];
+      temp[index] = true;
+      setIsFlipped(temp);
+    }
+
+    console.log(pair);
+    // adding it to the pair array
+    if (pair.length == 0) {
+      console.log("here");
+      setPair([{ card_id: cards[index], card_index: index }]);
+    } else if (pair.length == 1 && pair[0].card_index != index) {
+      console.log("here");
+      setPauseFlip(true);
+      // the pairs match
+      if (pair[0].card_id == cards[index]) {
+        const temp = [...foundCards];
+        temp[pair[0].card_index] = true;
+        temp[index] = true;
+
+        setTimeout(() => {
+          setScore(score + 1);
+          setFoundCards(temp);
+          setPauseFlip(false);
+        }, 1000);
+      } else {
+        const temp = [...isFlipped];
+        temp[pair[0].card_index] = false;
+        temp[index] = false;
+
+        setTimeout(() => {
+          setIsFlipped(temp);
+          setPauseFlip(false);
+        }, 1000);
+      }
+
+      // clear the pair array
+      setPair([]);
+    }
+  };
+
+  const containerStyles = {
+    width: "100%",
+    height: "100%",
+  };
+
+  const hide = {
+    display: "none",
   };
 
   return (
     <Contaienr>
-      <Row gutter={[16, 16]}>
-        {cards.map((card, index) => (
-          <Col
-            key={card}
-            className="gutter-row"
-            style={{
-              width: `calc(100% / ${rowCount})`,
-              height: "150px",
-            }}
-          >
-            <ReactCardFlip
-              isFlipped={isFlipped[index]}
-              containerStyle={containerStyles}
+      {score == size ? (
+        <WinScreen>
+          <WinText>Congrates You Won !!</WinText>
+          <Button onClick={() => getCards(size)}>Play Again ?</Button>
+        </WinScreen>
+      ) : (
+        <Row gutter={[16, 16]}>
+          {cards.map((card, index) => (
+            <Col
+              key={index.toString()}
+              className="gutter-row"
+              style={{
+                width: `calc(100% / ${rowCount})`,
+                height: "150px",
+              }}
             >
-              <Card onClick={() => handleFlip(index)}>
-                <QuestionMark>?</QuestionMark>
-              </Card>
+              <ReactCardFlip
+                isFlipped={isFlipped[index]}
+                containerStyle={foundCards[index] ? hide : containerStyles}
+              >
+                <Card onClick={() => handleFlip(index)}>
+                  <QuestionMark>?</QuestionMark>
+                </Card>
 
-              <Card onClick={() => handleFlip(index)}>
-                <Image src="./images/1.jpg" alt="image" />
-              </Card>
-            </ReactCardFlip>
-          </Col>
-        ))}
-      </Row>
+                <Card onClick={() => handleFlip(index)}>
+                  <Image src={`./images/${card}.jpg`} alt="image" />
+                </Card>
+              </ReactCardFlip>
+            </Col>
+          ))}
+        </Row>
+      )}
     </Contaienr>
   );
 }
 
-export default connect(null, null)(Main);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getCards: (size) => dispatch({ type: "GET_CARDS", payload: { size } }),
+    setIsFlipped: (isFlipped) =>
+      dispatch({ type: "SET_IS_FLIPPED", payload: { isFlipped } }),
+    setPauseFlip: (pauseFlip) =>
+      dispatch({ type: "SET_PAUSE_FLIP", payload: { pauseFlip } }),
+    setPair: (pair) => dispatch({ type: "SET_PAIR", payload: { pair } }),
+    setFoundCards: (foundCards) =>
+      dispatch({ type: "SET_FOUND_CARDS", payload: { foundCards } }),
+    setScore: (score) => dispatch({ type: "SET_SCORE", payload: { score } }),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(Main);
