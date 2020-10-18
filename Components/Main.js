@@ -130,6 +130,7 @@ function Main({
     display: "none",
   };
 
+  console.log(cards);
   return (
     <Contaienr>
       {score == size ? (
